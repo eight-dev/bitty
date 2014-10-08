@@ -1,11 +1,24 @@
-#ifndef bitty_bit_type_h
-#define bitty_bit_type_h
+//
+//  __bitset_type.h
+//  bitlib
+//
+//  Created by Aaron West on 17.09.14.
+//  Copyright (c) 2014 Nemso Unincorporated. All rights reserved.
+//
 
+#ifndef bitlib___bitset_type_h
+#define bitlib___bitset_type_h
+
+#include "bit_type.h"
 #include <iostream>
+#include <algorithm>
+#include <numeric>
+#include <vector>
 
-class bit_t {
+class bitset_t {
 private:
-	bool value;
+	// Raw std::vector
+	std::vector<bit_t> set;
 public:
 
 	//   ######  ##    ##  ######  ######## ########   ######
@@ -17,13 +30,19 @@ public:
 	//   ######  ##    ##  ######     ##    ##     ##  ######
 
 	// Default empty constructor
-	bit_t();
+	bitset_t();
 
-	// Boolean constructor
-	bit_t(bool bit);
+	// Initializes bitset from list
+	bitset_t(std::initializer_list<bit_t> bits);
 
-	// Integer constructor
-	bit_t(int bit);
+	// Copy constructor
+	bitset_t(const bitset_t& bits);
+
+	// Initializes bitset from vector of bits
+	bitset_t(std::vector<bit_t>& bits);
+
+	// Initializes bitset from array of bools
+	bitset_t(const size_t length, const bool* head);
 
 
 
@@ -35,14 +54,36 @@ public:
 	//  ##    ## ##     ## ##    ##    ##
 	//   ######  ##     ##  ######     ##
 
-	// Bool cast
-	operator bool();
+	// Bit_t vector cast
+	operator std::vector<bit_t>();
 
-	// Integer cast
-	operator int();
 
-	// Size_t cast
-	operator size_t();
+
+	//  #### ######## ######## ########  ######## ##    ##  ######
+	//   ##     ##    ##       ##     ##    ##    ###   ## ##    ##
+	//   ##     ##    ##       ##     ##    ##    ####  ## ##
+	//   ##     ##    ######   ########     ##    ## ## ## ##   ####
+	//   ##     ##    ##       ##   ##      ##    ##  #### ##    ##
+	//   ##     ##    ##       ##    ##     ##    ##   ### ##    ##
+	//  ####    ##    ######## ##     ##    ##    ##    ##  ######
+
+	// STL begin iterator wrap
+	std::vector<bit_t>::iterator begin();
+
+	// STL end iterator wrap
+	std::vector<bit_t>::iterator end();
+
+	// Returns the length of this bitset
+	size_t length();
+
+	// Returns the length, added for C++11 compability
+	size_t size() {
+		return length();
+	}
+
+	void resize(size_t length);
+
+	void resize(size_t length, const bit_t& value);
 
 
 
@@ -54,14 +95,41 @@ public:
 	//  ##       ##     ## ##    ##   ##  ##    ##
 	//  ########  #######   ######   ####  ######
 
-	// Set bit to TRUE
-	void set();
+	// Set all bits to TRUE
+	void setAll();
 
-	// Set bit to FALSE
-	void reset();
+	// Set all bits to FALSE
+	void resetAll();
 
-	// Invert bit
+	void fillWith(bit_t value);
+
+	// Invert bitset
 	void invert();
+
+	// Hamming distance
+	friend size_t hammingDistance(bitset_t left, bitset_t right);
+
+
+
+	//   ######  ##     ## #### ######## ######## #### ##    ##  ######
+	//  ##    ## ##     ##  ##  ##          ##     ##  ###   ## ##    ##
+	//  ##       ##     ##  ##  ##          ##     ##  ####  ## ##
+	//   ######  #########  ##  ######      ##     ##  ## ## ## ##   ####
+	//        ## ##     ##  ##  ##          ##     ##  ##  #### ##    ##
+	//  ##    ## ##     ##  ##  ##          ##     ##  ##   ### ##    ##
+	//   ######  ##     ## #### ##          ##    #### ##    ##  ######
+
+	// Cyclic shift bits left
+	void rotateLeft(size_t shift);
+
+	// Cyclic shift bits right
+	void rotateRight(size_t shift);
+
+	// Shift bits left (data loss warning)
+	void shiftLeft(size_t shift);
+
+	// Shift bits right (data loss warning)
+	void shiftRight(size_t shift);
 
 
 
@@ -73,23 +141,11 @@ public:
 	//  ##     ## ##   ### ##     ## ##    ##     ##
 	//   #######  ##    ## ##     ## ##     ##    ##
 
-	// Bit's complement
-	bit_t operator!();
+	// Bitset full complement
+	bitset_t operator!();
 
-	// Bit's complement
-	bit_t operator~();
-
-	// Increment bit (prefix)
-	bit_t& operator++();
-
-	// Decrement bit (prefix)
-	bit_t& operator--();
-
-	// Increment bit (postfix)
-	bit_t& operator++(int);
-
-	// Decrement bit (postfix)
-	bit_t& operator--(int);
+	// Bitset full complement
+	bitset_t operator~();
 
 
 
@@ -101,20 +157,23 @@ public:
 	//  ##     ##  ##  ##   ### ##     ## ##    ##     ##
 	//  ########  #### ##    ## ##     ## ##     ##    ##
 
-	// Exclusive or (xor, addition modulo 2)
-	bit_t operator^(bit_t& other);
+	// XOR
+	bitset_t operator^(bitset_t& other);
 
-	// Conjunction (and)
-	bit_t operator&(bit_t& other);
+	// AND
+	bitset_t operator&(bitset_t& other);
 
-	// Disjunction (or)
-	bit_t operator|(bit_t& other);
+	// OR
+	bitset_t operator|(bitset_t& other);
 
-	// Nand (negated and)
-	friend bit_t nand(bit_t& left, bit_t& right);
+	// SCALAR PRODUCT W/XOR
+	bit_t operator*(bitset_t& other);
 
-	// Nor (negated or)
-	friend bit_t nor(bit_t& left, bit_t& right);
+	// NAND
+	friend bitset_t nand(bitset_t& left, bitset_t& right);
+
+	// NOR
+	friend bitset_t nor(bitset_t& left, bitset_t& right);
 
 
 
@@ -127,18 +186,18 @@ public:
 	//  ##     ##  ######   ######   ######   ##    ## ##     ## ##    ##    ##
 
 	// Assignment
-	bit_t& operator=(bit_t other);
+	bitset_t& operator=(bitset_t other);
 
-	// Exclusive or assignment
-	bit_t& operator^=(const bit_t& other);
+	// XOR assignment
+	bitset_t& operator^=(const bitset_t& other);
 
-	// Conjuction assignment
-	bit_t& operator&=(const bit_t& other);
+	// AND assignment
+	bitset_t& operator&=(const bitset_t& other);
 
-	// Disjunction assignment
-	bit_t& operator|=(const bit_t& other);
+	// OR assignment
+	bitset_t& operator|=(const bitset_t& other);
 
-
+	bit_t& operator[] (const size_t index);
 
 	//   ######   #######  ##     ## ########  ########   ######  ##    ##
 	//  ##    ## ##     ## ###   ### ##     ## ##     ## ##    ## ###   ##
@@ -149,32 +208,10 @@ public:
 	//   ######   #######  ##     ## ##        ##     ##  ######  ##    ##
 
 	// Equality test
-	bool operator==(bit_t& other);
+	bool operator== (bitset_t& other);
 
 	// Inequality test
-	bool operator!=(bit_t& other);
-
-
-
-	//  ########  ######## ##          ###    ######## ##    ##  ######
-	//  ##     ## ##       ##         ## ##      ##    ###   ## ##    ##
-	//  ##     ## ##       ##        ##   ##     ##    ####  ## ##
-	//  ########  ######   ##       ##     ##    ##    ## ## ##  ######
-	//  ##   ##   ##       ##       #########    ##    ##  ####       ##
-	//  ##    ##  ##       ##       ##     ##    ##    ##   ### ##    ##
-	//  ##     ## ######## ######## ##     ##    ##    ##    ##  ######
-
-	// 'Less than' relation
-	bool operator<(const bit_t& other);
-
-	// 'Greater than' relation
-	bool operator>(const bit_t& other);
-
-	// 'Less than or equal to' relation
-	bool operator<=(const bit_t& other);
-
-	// 'Greater than or equal to' relation
-	bool operator>=(const bit_t& other);
+	bool operator!= (bitset_t& other);
 
 
 
@@ -187,11 +224,12 @@ public:
 	//  #### ##    ##    ##    ##     ## ##       ##     ##  ######  ########
 
 	// Returns binary representation of a bit
-	std::string toBinaryString() const;
+	std::string toBinaryString();
 
-	// Inserts binary bit representation into ostream
-	friend std::ostream& operator<<(std::ostream& os, const bit_t& bit);
+	std::string toBinaryString(std::string delimiter);
+
+	// Inserts binary representation to stream
+	friend std::ostream& operator<<(std::ostream& os, const bitset_t& bits);
 };
-
 
 #endif
