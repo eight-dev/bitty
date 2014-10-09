@@ -1,10 +1,41 @@
+/**
+ * @file bit_type.h
+ * @date October 9, 2014
+ * @brief Contains definition of the `bit_t` class
+ */
+
 #ifndef bitty_bit_type_h
 #define bitty_bit_type_h
 
 #include <iostream>
 
+/**
+ * @brief Bit type, stores a boolean value
+ *
+ * @details This class stores single boolean value (can be either `true` or `false`) and provides means to perform routine operations over boolean values.
+ *
+ * @note Standart C++ boolean type is used as an underlying value type.
+ *
+ * Example usage:
+ * @code
+ *	// Initialise bit values
+ *	bit_t bit1 = 1, bit2 = false, bit3(25);
+ *	
+ *	// Perform operations on bit values
+ *	bit_t bit4 = (bit1 ^= (bit2 & bit3));
+ *	
+ *	// Output bit value
+ *	std::cout << bit4 << " = " << bit1 << " ^ (" << bit2 << " & " << bit3 << ")" << endl;
+ * @endcode
+ */
 class bit_t {
 private:
+
+	/**
+	 * @brief Raw boolean value
+	 *
+	 * @warning This value should not be accessed by any external methods and members.
+	 */
 	bool value;
 public:
 
@@ -212,7 +243,7 @@ public:
 	 *
 	 * @see operator~()
 	 */
-	bit_t operator!();
+	bit_t operator!() const;
 
 	/**
 	 * @brief Calculates inverted bit value
@@ -232,7 +263,7 @@ public:
 	 * 
 	 * @see operator!()
 	 */
-	bit_t operator~();
+	bit_t operator~() const;
 
 	/**
 	 * @brief Increments bit
@@ -384,7 +415,7 @@ public:
 	 *	x3 = x1 & x2;
 	 * @endcode
 	 */
-	bit_t operator&(bit_t& other);
+	bit_t operator&(const bit_t& other) const;
 
 	/**
 	 * @brief Disjunction operator
@@ -414,7 +445,7 @@ public:
 	 *	x3 = x1 | x2;
 	 * @endcode
 	 */
-	bit_t operator|(bit_t& other);
+	bit_t operator|(const bit_t& other) const;
 
 	/**
 	 * @brief Negated conjuction operator
@@ -443,7 +474,7 @@ public:
 	 *	x3 = nand(x1, x2);
 	 * @endcode
 	 */
-	friend bit_t nand(bit_t& left, bit_t& right);
+	friend bit_t nand(const bit_t& left, const bit_t& right);
 
 	/**
 	 * @brief Negated disjuction operator
@@ -472,7 +503,7 @@ public:
 	 *	x3 = nor(x1, x2);
 	 * @endcode
 	 */
-	friend bit_t nor(bit_t& left, bit_t& right);
+	friend bit_t nor(const bit_t& left, const bit_t& right);
 
 
 
@@ -503,7 +534,7 @@ public:
 	 *	x1 = x2;
 	 * @endcode
 	 */
-	bit_t& operator=(bit_t other);
+	bit_t& operator=(const bit_t other);
 
 	/**
 	 * @brief Exclusive OR compound assignment operator
@@ -593,11 +624,11 @@ public:
 	 * @details Test whether the `bit_t` instances are equal
 	 *
 	 * @param [in] other The right `bit_t` part of the comparison.
-	 *
-	 * @note \f$x_1\f$ is passed via `*this`.
 	 * 
 	 * @retval true `*this` and @p other bits are equal
 	 * @retval false `*this` and @p other bits are not equal
+	 *
+	 * @note \f$x_1\f$ is passed via `*this`.
 	 *
 	 * Example usage:
 	 * @code
@@ -608,7 +639,7 @@ public:
 	 *	x3 = (x1 == x2);
 	 * @endcode
 	 */
-	bool operator==(bit_t& other);
+	bool operator==(const bit_t& other) const;
 
 	/**
 	 * @brief Inequality test operator
@@ -617,10 +648,10 @@ public:
 	 *
 	 * @param [in] other The right `bit_t` part of the comparison.
 	 *
-	 * @note \f$x_1\f$ is passed via `*this`.
-	 *
 	 * @retval true `*this` and @p other bits are not equal
 	 * @retval false `*this` and @p other bits are equal
+	 *
+	 * @note \f$x_1\f$ is passed via `*this`.
 	 *
 	 * Example usage:
 	 * @code
@@ -631,7 +662,7 @@ public:
 	 *	x3 = (x1 != x2);
 	 * @endcode
 	 */
-	bool operator!=(bit_t& other);
+	bool operator!=(const bit_t& other) const;
 
 
 
@@ -643,17 +674,129 @@ public:
 	//  ##    ##  ##       ##       ##     ##    ##    ##   ### ##    ##
 	//  ##     ## ######## ######## ##     ##    ##    ##    ##  ######
 
-	// 'Less than' relation
-	bool operator<(const bit_t& other);
+	/**
+	 * @brief Less than relation operator
+	 *
+	 * @details Bitwise overloaded relation less than (\f$<\f$) operator, only returns
+	 *	`true` when first operand is `false` and second is `true`, and `false` otherwise; has the
+	 *	following truth table:
+	 *	| \f$x_1\f$ | \f$x_2\f$ | \f$f=x_1 < x_2\f$ |
+	 *	|:---------:|:---------:|:-----------------:|
+	 *	|0          |0          |0                  |
+	 *	|0          |1          |1                  |
+	 *	|1          |0          |0                  |
+	 *	|1          |1          |0                  |
+	 *
+	 * @param [in] other Second `bit_t` operand \f$x_2\f$.
+	 *
+	 * @return `bit_t` value \f$ x_3 = f(x_1, x_2) \f$
+	 *
+	 * @note \f$x_1\f$ is passed via `*this`.
+	 *
+	 * Example usage:
+	 * @code
+	 *	// Initialise bit_t and boolean values
+	 *	bit_t x1(false), x2(true);
+	 *	bool value = false;
+	 *
+	 *	// Calculate value = x1 < x2
+	 *	value = x1 < x2;
+	 * @endcode
+	 */
+	bool operator<(const bit_t& other) const;
 
-	// 'Greater than' relation
-	bool operator>(const bit_t& other);
+	/**
+	 * @brief Greater than relation operator
+	 *
+	 * @details Bitwise overloaded relation greater than (\f$>\f$) operator, only returns
+	 *	`true` when first operand is `true` and second is `false`, and `false` otherwise; has the
+	 *	following truth table:
+	 *	| \f$x_1\f$ | \f$x_2\f$ | \f$f=x_1 < x_2\f$ |
+	 *	|:---------:|:---------:|:-----------------:|
+	 *	|0          |0          |0                  |
+	 *	|0          |1          |0                  |
+	 *	|1          |0          |1                  |
+	 *	|1          |1          |0                  |
+	 *
+	 * @param [in] other Second `bit_t` operand \f$x_2\f$.
+	 *
+	 * @return `bit_t` value \f$ x_3 = f(x_1, x_2) \f$
+	 *
+	 * @note \f$x_1\f$ is passed via `*this`.
+	 *
+	 * Example usage:
+	 * @code
+	 *	// Initialise bit_t and boolean values
+	 *	bit_t x1(false), x2(true);
+	 *	bool value = false;
+	 *
+	 *	// Calculate value = x1 > x2
+	 *	value = x1 > x2;
+	 * @endcode
+	 */
+	bool operator>(const bit_t& other) const;
 
-	// 'Less than or equal to' relation
-	bool operator<=(const bit_t& other);
+	/**
+	 * @brief Less or equal to relation operator
+	 *
+	 * @details Bitwise overloaded relation less or equal to (\f$\leq\f$) operator, only returns
+	 *	`false` when first operand is `true` and second is `false`, and `true` otherwise; has the
+	 *	following truth table:
+	 *	| \f$x_1\f$ | \f$x_2\f$ | \f$f=x_1 \leq x_2\f$ |
+	 *	|:---------:|:---------:|:--------------------:|
+	 *	|0          |0          |1                     |
+	 *	|0          |1          |1                     |
+	 *	|1          |0          |0                     |
+	 *	|1          |1          |1                     |
+	 *
+	 * @param [in] other Second `bit_t` operand \f$x_2\f$.
+	 *
+	 * @return `bit_t` value \f$ x_3 = f(x_1, x_2) \f$
+	 *
+	 * @note \f$x_1\f$ is passed via `*this`.
+	 *
+	 * Example usage:
+	 * @code
+	 *	// Initialise bit_t and boolean values
+	 *	bit_t x1(false), x2(true);
+	 *	bool value = false;
+	 *
+	 *	// Calculate value = x1 <= x2
+	 *	value = x1 <= x2;
+	 * @endcode
+	 */
+	bool operator<=(const bit_t& other) const;
 
-	// 'Greater than or equal to' relation
-	bool operator>=(const bit_t& other);
+	/**
+	 * @brief Greater or equal to relation operator
+	 *
+	 * @details Bitwise overloaded relation greater or equal to (\f$\geq\f$) operator, only returns
+	 *	`false` when first operand is `false` and second is `true`, and `true` otherwise; has the
+	 *	following truth table:
+	 *	| \f$x_1\f$ | \f$x_2\f$ | \f$f=x_1 \geq x_2\f$ |
+	 *	|:---------:|:---------:|:--------------------:|
+	 *	|0          |0          |1                     |
+	 *	|0          |1          |0                     |
+	 *	|1          |0          |1                     |
+	 *	|1          |1          |1                     |
+	 *
+	 * @param [in] other Second `bit_t` operand \f$x_2\f$.
+	 *
+	 * @return `bit_t` value \f$ x_3 = f(x_1, x_2) \f$
+	 *
+	 * @note \f$x_1\f$ is passed via `*this`.
+	 *
+	 * Example usage:
+	 * @code
+	 *	// Initialise bit_t and boolean values
+	 *	bit_t x1(false), x2(true);
+	 *	bool value = false;
+	 *
+	 *	// Calculate value = x1 >= x2
+	 *	value = x1 >= x2;
+	 * @endcode
+	 */
+	bool operator>=(const bit_t& other) const;
 
 
 
@@ -665,10 +808,48 @@ public:
 	//   ##  ##   ###    ##    ##    ##  ##       ##     ## ##    ## ##
 	//  #### ##    ##    ##    ##     ## ##       ##     ##  ######  ########
 
-	// Returns binary representation of a bit
+	/**
+	 * @brief Returns string with bit binary representation
+	 *
+	 * @retval "1" if `*this` bit is set
+	 * @retval "0" if `*this` bit is reset
+	 *
+	 * @note Method does not modify `*this` value, upon which it was invoked.
+	 *
+	 * Example usage:
+	 * @code
+	 *	// Initialise bit_t values
+	 *	bit_t someBit(false), someOtherBit(true);
+	 *	
+	 *	// Insert bits in the console output stream
+	 *	std::cout << someBit << " " << someOtherBit << endl;
+	 * @endcode
+	 */
 	std::string toBinaryString() const;
 
-	// Inserts binary bit representation into ostream
+	/**
+	 * @brief Inserts @p bit binary representation into @p os
+	 *
+	 * @details Insertion is performed with toBinaryString() method.
+	 *
+	 * @param [in,out] os An `std::ostream` which method is invoked upon.
+	 * @param [in] bit Bit to be inserted.
+	 *
+	 * @return Modified `std::ostream` stream.
+	 *
+	 * @note Uses overloaded for `std::string` stream insertion operator.
+	 *
+	 * Example usage:
+	 * @code
+	 *	// Initialise a couple of bit_t values
+	 *	bit_t someBit(true), someOtherBit(false);
+	 *	
+	 *	// Insert them in default console output stream
+	 *	std::cout << someBit << " " << someOtherBit << endl;
+	 * @endcode
+	 *
+	 * @see toBinaryString()
+	 */
 	friend std::ostream& operator<<(std::ostream& os, const bit_t& bit);
 };
 
