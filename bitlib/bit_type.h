@@ -76,6 +76,24 @@ public:
 	bit_t(bool value);
 
 	/**
+	 * @brief Copy bit_t constructor
+	 *
+	 * @details Constructs `bit_t` from another `bit_t`.
+	 *
+	 * @param [in] bit `bit_t` value to initialize bit with.
+	 *
+	 * Example usage:
+	 * @code
+	 *	// Initiailize bit_t value
+	 *	bit_t someBit(true);
+	 *
+	 *	// Construct a copy
+	 *	bit_t someOtherBit(someBit);
+	 * @endcode
+	 */
+	bit_t(const bit_t& bit);
+
+	/**
 	 * @brief Integer bit_t constructor
 	 *
 	 * @details Constructs bit from `int` value. The bit is considered set when
@@ -450,15 +468,15 @@ public:
 	/**
 	 * @brief Negated conjuction operator
 	 *
-	 * @details Bitwise negated AND (NAND) operator, only returns
+	 * @details Bitwise negated AND (NAND, \f$\vert\f$) operator, only returns
 	 *	`false` when both operands are `true`, and `true` otherwise; has the
 	 *	following truth table:
-	 *	| \f$x_1\f$ | \f$x_2\f$ | \f$f=\neg(x_1\wedge x_2)\f$ |
-	 *	|:---------:|:---------:|:---------------------------:|
-	 *	|0          |0          |1                            |
-	 *	|0          |1          |1                            |
-	 *	|1          |0          |1                            |
-	 *	|1          |1          |0                            |
+	 *	| \f$x_1\f$ | \f$x_2\f$ | \f$f=x_1\,\big\vert x_2\,\f$ |
+	 *	|:---------:|:---------:|:----------------------------:|
+	 *	|0          |0          |1                             |
+	 *	|0          |1          |1                             |
+	 *	|1          |0          |1                             |
+	 *	|1          |1          |0                             |
 	 *
 	 * @param [in] left First `bit_t` operand \f$x_1\f$.
 	 * @param [in] right Second `bit_t` operand \f$x_2\f$.
@@ -479,10 +497,10 @@ public:
 	/**
 	 * @brief Negated disjuction operator
 	 *
-	 * @details Bitwise negated OR (NOR) operator, only returns
+	 * @details Bitwise negated OR (NOR, \f$\downarrow\f$) operator, only returns
 	 *	`true` when both operands are `false`, and `false` otherwise; has the
 	 *	following truth table:
-	 *	| \f$x_1\f$ | \f$x_2\f$ | \f$f=\neg(x_1\wedge x_2)\f$ |
+	 *	| \f$x_1\f$ | \f$x_2\f$ | \f$f= x_1 \downarrow x_2\f$ |
 	 *	|:---------:|:---------:|:---------------------------:|
 	 *	|0          |0          |1                            |
 	 *	|0          |1          |0                            |
@@ -628,8 +646,6 @@ public:
 	 * @retval true `*this` and @p other bits are equal
 	 * @retval false `*this` and @p other bits are not equal
 	 *
-	 * @note \f$x_1\f$ is passed via `*this`.
-	 *
 	 * Example usage:
 	 * @code
 	 *	// Initialise bit_t values
@@ -642,23 +658,21 @@ public:
 	bool operator==(const bit_t& other) const;
 
 	/**
-	 * @brief Inequality test operator
+	 * @brief Unequality test operator
 	 *
-	 * @details Test whether the `bit_t` instances are not equal
+	 * @details Test whether the `bit_t` instances are unequal
 	 *
 	 * @param [in] other The right `bit_t` part of the comparison.
 	 *
-	 * @retval true `*this` and @p other bits are not equal
+	 * @retval true `*this` and @p other bits are unequal
 	 * @retval false `*this` and @p other bits are equal
-	 *
-	 * @note \f$x_1\f$ is passed via `*this`.
 	 *
 	 * Example usage:
 	 * @code
 	 *	// Initialise bit_t values
 	 *	bit_t x1(false), x2(true), x3;
 	 *
-	 *	// Test if x1 and x2 are not equal
+	 *	// Test if x1 and x2 are unequal
 	 *	x3 = (x1 != x2);
 	 * @endcode
 	 */

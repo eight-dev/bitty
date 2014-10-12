@@ -30,6 +30,10 @@ bit_t::bit_t(int bit) {
 	return;
 }
 
+bit_t::bit_t(const bit_t& bit) : value(bit.value) {
+	return;
+}
+
 
 
 //   ######     ###     ######  ########
@@ -154,8 +158,8 @@ bit_t nor(const bit_t& left, const bit_t& right) {
 //  ##     ## ##    ## ##    ## ##    ##  ##   ### ##     ## ##   ###    ##
 //  ##     ##  ######   ######   ######   ##    ## ##     ## ##    ##    ##
 
-bit_t& bit_t::operator=(bit_t other) {
-	std::swap(this->value, other.value);
+bit_t& bit_t::operator=(const bit_t other) {
+	value = other.value;
 	return *this;
 }
 
@@ -232,8 +236,7 @@ std::string bit_t::toBinaryString() const {
 	return (value ? "1" : "0");
 }
 
-std::ostream& operator<<(std::ostream& os, const bit_t& bit)
-{
+std::ostream& operator<<(std::ostream& os, const bit_t& bit) {
 	os << bit.toBinaryString();
 	return os;
 }
